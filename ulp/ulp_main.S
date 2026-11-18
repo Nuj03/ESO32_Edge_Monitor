@@ -26,7 +26,37 @@ delay_18ms:
 wait_for_handshake:
     READ_RTC_REG(RTC_GPIO_IN_REG, RTC_GPIO_IN_NEXT_S + dht_pin, 1)
     and r0, r0, 1
-    jump wait_for_handshake, eq
+    jump wait_for_handshake, gt
+
+wait_for_handshake_high:
+    READ_RTC_REG(RTC_GPIO_IN_REG, RTC_GPIO_IN_NEXT_S + dht_pin, 1)
+    and r0, r0, 1
+    jump wait_for_handshake_high, eq
+
+wait_for_handshake_low:
+    READ_RTC_REG(RTC_GPIO_IN_REG, RTC_GPIO_IN_NEXT_S + dht_pin, 1)
+    and r0, r0, 1
+    jump wait_for_handshake_low, gt
+
+move r1, 40
+
+read_loop:
+
+wait_bit_high:
+    READ_RTC_REG(RTC_GPIO_IN_REG, RTC_GPIO_IN_NEXT_S + dht_pin, 1)
+    and r0, r0, 1
+    jump wait_bit_high, eq
+
+    move r2, 0
+
+measure_high:
+    add r2, r2, 1
+    READ_RTC_REG(RTC_GPIO_IN_REG, RTC_GPIO_IN_NEXT_S + dht_pin, 1)
+    and r0, r0, 1
+    jump measure_high, gt
+
+    sub r1, r1, 1
+    jump read_loop, gt
 
     wake
     halt
